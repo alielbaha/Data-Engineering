@@ -4,7 +4,6 @@ import time
 from datetime import datetime
 
 def make_serializable(obj):
-    """Convert non-serializable objects to serializable format"""
     if isinstance(obj, datetime):
         return obj.isoformat()
     elif isinstance(obj, (list, tuple)):
@@ -24,17 +23,16 @@ for keyword in keywords:
         keyword,
         lang="en",  
         country="us", 
-        n_hits=30  # Maximum allowed per search
+        n_hits=30  # max
     )
     
-    # Add search keyword to each result for reference
     for app_result in result:
         app_result['search_keyword'] = keyword
     
     all_results.extend(result)
     print(f"Found {len(result)} apps for '{keyword}'")
 
-# Remove duplicates based on app ID
+# removed dupplicates
 unique_apps = []
 seen_app_ids = set()
 
@@ -46,7 +44,6 @@ for app_result in all_results:
 
 print(f"Total unique apps collected: {len(unique_apps)}")
 
-# Extract reviews for each app
 all_apps_with_reviews = []
 
 for i, app_data in enumerate(unique_apps):
@@ -54,15 +51,14 @@ for i, app_data in enumerate(unique_apps):
     print(f"Extracting reviews for app {i+1}/{len(unique_apps)}: {app_data.get('title', app_id)}")
     
     try:
-        # Extract reviews
         app_reviews, continuation_token = reviews(
             app_id,
             lang='en',
             country='us',
-            count=100  # Number of reviews to fetch
+            count=100 
         )
         
-        # Convert datetime objects in reviews to strings
+        # datetime -> strings
         serializable_reviews = make_serializable(app_reviews)
         app_data['reviews'] = serializable_reviews
         print(f"  -> Retrieved {len(serializable_reviews)} reviews")
@@ -71,16 +67,14 @@ for i, app_data in enumerate(unique_apps):
         print(f"  -> Error fetching reviews: {str(e)}")
         app_data['reviews'] = []
     
-    # Add a small delay to respect rate limits
     time.sleep(1)
     
     all_apps_with_reviews.append(app_data)
 
-# Make sure all data is serializable before saving
 final_data = make_serializable(all_apps_with_reviews)
 
-# Save all results with reviews to file
 with open('data/raw/ai_note_apps_with_reviews.json', 'w', encoding='utf-8') as f:
     json.dump(final_data, f, ensure_ascii=False, indent=2)
 
-print(f"Results with reviews saved to 'data/raw/ai_note_apps_with_reviews.json'")
+
+print(f"Resultat 'data/raw/ai_note_apps_with_reviews.json'")
