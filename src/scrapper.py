@@ -28,7 +28,7 @@ def save_to_file(data, filename):
     
     return len(existing_data)
 
-keywords = ["AI notes", "take notes AI", "Notes AI", "AI notebook", "Smart notes"]
+keywords = ["AI notes", "take notes AI", "Notes AI", "AI notebook", "Smart notes","notes","note taking","note taking app","note taking ai","note taking with ai","ai note taking","ai note","ai notes app","ai notebook app","smart notes app"]
 
 all_results = []
 
@@ -54,7 +54,7 @@ for app_result in all_results:
         unique_apps.append(app_result)
         seen_app_ids.add(app_id)
 
-output_file = 'data/raw/ai_note_apps_with_reviews.json'
+output_file = '../data/raw/ai_note_apps_with_reviews.json'
 os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
 processed_count = 0
@@ -66,10 +66,14 @@ for i, app_data in enumerate(unique_apps):
         all_reviews = []
         continuation_token = None
         
-        while len(all_reviews) < 100:
+        # Add a safeguard counter to prevent infinite loops
+        max_iterations = 10  # Maximum number of API calls per app
+        iteration_count = 0
+
+        while len(all_reviews) < 100 and iteration_count < max_iterations:
             remaining_count = 100 - len(all_reviews)
             count_to_fetch = min(100, remaining_count)
-            
+
             if continuation_token is None:
                 app_reviews, continuation_token = reviews(
                     app_id,
@@ -85,16 +89,23 @@ for i, app_data in enumerate(unique_apps):
                     count=count_to_fetch,
                     continuation_token=continuation_token
                 )
-            
+
             all_reviews.extend(app_reviews)
             
+            # If no new reviews were added, break to avoid infinite loop
+            if not app_reviews:
+                break
+
             if not continuation_token:
                 break
-        
+                
+            iteration_count += 1
+
         serializable_reviews = make_serializable(all_reviews)
         app_data['reviews'] = serializable_reviews
-        
+
     except Exception as e:
+        print(f"Error processing app {app_id}: {str(e)}")
         app_data['reviews'] = []
     
     save_to_file([app_data], output_file)
