@@ -1,0 +1,33 @@
+Version: 2
+
+models:
+  - name: stg_apps
+    description: "Staging table for app metadata"
+    columns:
+      - name: app_id
+        description: "Unique app identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_reviews
+    description: "Staging table for app reviews"
+    columns:
+      - name: review_key
+        description: "Surrogate key for review"
+        tests:
+          - unique
+          - not_null
+      - name: app_id
+        description: "Foreign key to app"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_apps')
+              field: app_id
+      - name: rating_score
+        description: "User rating 1-5"
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
