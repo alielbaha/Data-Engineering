@@ -1,4 +1,9 @@
-﻿{{ config(materialized='table') }}
+﻿{{
+  config(
+    materialized='incremental',
+    unique_key='review_id'
+  )
+}}
 
 with reviews as (
     select
@@ -9,6 +14,12 @@ with reviews as (
         thumbs_up_count,
         review_timestamp
     from {{ ref('stg_playstore_reviews') }}
+    {% if is_incremental() %}
+      where review_timestamp > (
+          select coalesce(max(review_timestamp), cast('1900-01-01' as timestamp))
+          from {{ this }}
+      )
+    {% endif %}
 ), apps as (
     select
         app_key,
