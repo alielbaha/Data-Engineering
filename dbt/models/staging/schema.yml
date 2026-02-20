@@ -1,0 +1,43 @@
+﻿version: 2
+
+models:
+  - name: stg_playstore_apps
+    description: "Staging model for apps metadata from Play Store raw JSON"
+    columns:
+      - name: app_key
+        tests:
+          - not_null
+          - unique
+      - name: app_id
+        tests:
+          - not_null
+          - unique
+      - name: installs
+        tests:
+          - not_null
+
+  - name: stg_playstore_reviews
+    description: "Staging model for app reviews from Play Store raw JSON"
+    columns:
+      - name: review_key
+        tests:
+          - not_null
+          - unique
+      - name: review_id
+        tests:
+          - not_null
+          - unique
+      - name: app_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_playstore_apps')
+              field: app_id
+      - name: rating_score
+        tests:
+          - not_null
+          - accepted_values:
+              values: [1, 2, 3, 4, 5]
+      - name: review_timestamp
+        tests:
+          - not_null
