@@ -12,13 +12,16 @@ models:
         tests:
           - not_null
           - unique
-      - name: app_key
+      - name: app_version_key
         tests:
           - not_null
           - relationships:
               arguments:
-                to: ref('dim_apps')
-                field: app_key
+                to: ref('dim_apps_scd')
+                field: app_version_key
+      - name: app_key
+        tests:
+          - not_null
       - name: developer_key
         tests:
           - not_null
