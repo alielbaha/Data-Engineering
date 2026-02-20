@@ -1,0 +1,23 @@
+﻿name: 'playstore_dbt'
+version: '1.0.0'
+config-version: 2
+
+profile: 'playstore_dbt'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  playstore_dbt:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table
