@@ -1,0 +1,33 @@
+﻿version: 2
+
+models:
+  - name: dim_apps_scd
+    description: "SCD2 app dimension built from dbt snapshot"
+    columns:
+      - name: app_version_key
+        tests:
+          - not_null
+          - unique
+      - name: app_id
+        tests:
+          - not_null
+      - name: app_key
+        tests:
+          - not_null
+      - name: developer_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_developers')
+                field: developer_key
+      - name: category_key
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_categories')
+                field: category_key
+      - name: dbt_valid_from
+        tests:
+          - not_null
