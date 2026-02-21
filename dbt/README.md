@@ -1,37 +1,23 @@
-﻿# Lab 2 - dbt + DuckDB Architecture
+# Lab 2 - dbt + DuckDB Architecture
 
 This README describes the final architecture implemented in this project for Lab 2.
 
-## 1) End-to-End Architecture
+## 1) End-to-End Architecture (Simplified)
 
 ```mermaid
 flowchart LR
-    A[Google Play API] -->|src/scrapper.py| B[Raw JSON]
-    B --> C[dbt staging views]
-    C --> D[Core dimensions]
-    C --> E[dbt snapshot SCD2]
-    E --> F[dim_apps_scd]
-    D --> G[fact_reviews incremental]
-    F --> G
-    G --> H[Serving marts]
-    H --> I[BI / Dashboard / PNG Visuals]
+    S[Google Play API] --> I[src/scrapper.py]
+    I --> R[data/raw/ai_note_apps_with_reviews.json]
 
-    subgraph Project Files
-      B1["dbt/data/raw/ai_note_apps_with_reviews.json"]
-      C1["models/staging/stg_playstore_apps.sql"]
-      C2["models/staging/stg_playstore_reviews.sql"]
-      D1["models/marts/dimensions/dim_developers.sql"]
-      D2["models/marts/dimensions/dim_categories.sql"]
-      D3["models/marts/dimensions/dim_apps.sql"]
-      D4["models/marts/dimensions/dim_date.sql"]
-      E1["snapshots/apps_scd_snapshot.sql"]
-      F1["models/marts/dimensions/dim_apps_scd.sql"]
-      G1["models/marts/facts/fact_reviews.sql"]
-      H1["models/marts/serving/srv_monthly_rating_trend.sql"]
-      H2["models/marts/serving/srv_developer_performance.sql"]
-      I1["dbt/scripts/advanced_dashboard.py"]
-      I2["dbt/scripts/generate_lab2_visuals.py"]
-    end
+    R --> STG[stg_playstore_apps + stg_playstore_reviews]
+    STG --> DIM[dim_developers + dim_categories + dim_apps + dim_date]
+    STG --> SCD[apps_scd_snapshot -> dim_apps_scd]
+
+    DIM --> FACT[fact_reviews incremental]
+    SCD --> FACT
+
+    FACT --> SRV[srv_monthly_rating_trend + srv_developer_performance]
+    SRV --> BI[Flask Dashboard + PNG Visuals]
 ```
 
 ## 2) Star/Snowflake View (Implemented)
