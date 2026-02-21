@@ -37,13 +37,14 @@ def main() -> None:
     app_perf_rows = con.sql(
         """
         select
-            app_name,
+            app_id,
+            coalesce(nullif(trim(app_name), ''), app_id) as app_name,
             count(*) as number_of_reviews,
             round(avg(rating_score), 4) as average_rating,
             round(100.0 * sum(case when rating_score <= 2 then 1 else 0 end) / nullif(count(*), 0), 2) as low_rating_pct
         from stg_playstore_reviews
-        where app_name is not null
-        group by 1
+        where app_id is not null
+        group by 1, 2
         having count(*) >= 20
         order by number_of_reviews desc
         """
@@ -53,12 +54,13 @@ def main() -> None:
     worst_rows = con.sql(
         """
         select
-            app_name,
+            app_id,
+            coalesce(nullif(trim(app_name), ''), app_id) as app_name,
             round(100.0 * sum(case when rating_score <= 2 then 1 else 0 end) / nullif(count(*), 0), 2) as low_rating_pct,
             count(*) as review_count
         from stg_playstore_reviews
-        where app_name is not null
-        group by 1
+        where app_id is not null
+        group by 1, 2
         having count(*) >= 20
         order by low_rating_pct desc, review_count desc
         limit 10
@@ -93,10 +95,10 @@ def main() -> None:
     plt.close(fig)
 
     # 2) App Performance: Popularity vs Satisfaction (scatter)
-    names = [r[0] for r in app_perf_rows]
-    reviews = [int(r[1]) for r in app_perf_rows]
-    ratings = [float(r[2]) for r in app_perf_rows]
-    low_pct = [float(r[3]) for r in app_perf_rows]
+    names = [r[1] for r in app_perf_rows]
+    reviews = [int(r[2]) for r in app_perf_rows]
+    ratings = [float(r[3]) for r in app_perf_rows]
+    low_pct = [float(r[4]) for r in app_perf_rows]
 
     fig, ax = plt.subplots(figsize=(11, 7))
     sizes = [max(80, min(900, rv * 1.7)) for rv in reviews]
@@ -137,8 +139,8 @@ def main() -> None:
     plt.close(fig)
 
     # 3) Apps with Highest Percentage of Low Ratings
-    app_labels = [shorten(r[0], 34) for r in worst_rows]
-    low_values = [float(r[1]) for r in worst_rows]
+    app_labels = [shorten(r[1], 34) for r in worst_rows]
+    low_values = [float(r[2]) for r in worst_rows]
 
     fig, ax = plt.subplots(figsize=(11, 7))
     reds = plt.colormaps["Reds"]

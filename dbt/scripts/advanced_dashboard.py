@@ -26,13 +26,14 @@ def fetch_dashboard_data(min_reviews: int, top_n: int):
     app_metrics = con.sql(
         f"""
         select
-            app_name,
+            app_id,
+            coalesce(nullif(trim(app_name), ''), app_id) as app_name,
             count(*) as review_count,
             round(avg(rating_score), 3) as avg_rating,
             round(100.0 * sum(case when rating_score <= 2 then 1 else 0 end) / nullif(count(*),0), 2) as low_pct
         from stg_playstore_reviews
-        where app_name is not null
-        group by 1
+        where app_id is not null
+        group by 1, 2
         having count(*) >= {int(min_reviews)}
         order by review_count desc
         """
@@ -64,28 +65,31 @@ def fetch_dashboard_data(min_reviews: int, top_n: int):
         },
         "top_apps": [
             {
-                "app_name": r[0],
-                "review_count": int(r[1]),
-                "avg_rating": float(r[2]),
-                "low_pct": float(r[3]),
+                "app_id": r[0],
+                "app_name": r[1],
+                "review_count": int(r[2]),
+                "avg_rating": float(r[3]),
+                "low_pct": float(r[4]),
             }
             for r in top_apps
         ],
         "worst_apps": [
             {
-                "app_name": r[0],
-                "review_count": int(r[1]),
-                "avg_rating": float(r[2]),
-                "low_pct": float(r[3]),
+                "app_id": r[0],
+                "app_name": r[1],
+                "review_count": int(r[2]),
+                "avg_rating": float(r[3]),
+                "low_pct": float(r[4]),
             }
             for r in worst_apps
         ],
         "scatter_apps": [
             {
-                "app_name": r[0],
-                "review_count": int(r[1]),
-                "avg_rating": float(r[2]),
-                "low_pct": float(r[3]),
+                "app_id": r[0],
+                "app_name": r[1],
+                "review_count": int(r[2]),
+                "avg_rating": float(r[3]),
+                "low_pct": float(r[4]),
             }
             for r in app_metrics[:60]
         ],
