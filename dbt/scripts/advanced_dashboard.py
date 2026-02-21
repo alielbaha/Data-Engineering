@@ -39,8 +39,8 @@ def fetch_dashboard_data(min_reviews: int, top_n: int):
         """
     ).fetchall()
 
-    top_apps = sorted(app_metrics, key=lambda x: (x[2], x[1]), reverse=True)[:top_n]
-    worst_apps = sorted(app_metrics, key=lambda x: (x[3], -x[1]), reverse=True)[:top_n]
+    top_apps = sorted(app_metrics, key=lambda x: (x[3], x[2]), reverse=True)[:top_n]
+    worst_apps = sorted(app_metrics, key=lambda x: (x[4], -x[2]), reverse=True)[:top_n]
 
     monthly = con.sql(
         """
