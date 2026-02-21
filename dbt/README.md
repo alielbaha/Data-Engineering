@@ -2,7 +2,7 @@
 
 This README describes the final architecture implemented in this project for Lab 2.
 
-## 1) End-to-End Architecture (Simplified)
+## 1) End-to-End Architecture
 
 ```mermaid
 flowchart LR
